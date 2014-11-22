@@ -9,5 +9,9 @@ gem 'uglifier', '>= 1.3.0'
 gem 'sdoc', '~> 0.4.0',          group: :doc
 gem 'spring',        group: :development
 
-gem 'pry-rails', group: [:development, :test]
+group :development, :test do
+  gem 'pry-rails'
+  gem 'rspec-rails'
+end
+
 gem 'puma'
