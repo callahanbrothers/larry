@@ -2,8 +2,14 @@ require "rails_helper"
 
 RSpec.describe "Route", type: :routing do
   describe "Root" do
-    it "routes the home#index page" do
+    it "routes to home#index" do
       expect(get: "/").to route_to( controller: "home", action: "index" )
+    end
+  end
+
+  describe "Twitter Callback" do
+    it "routes to sessions#create" do
+      expect(get: "/auth/twitter/callback").to route_to( controller: "sessions", action: "create" )
     end
   end
 end
