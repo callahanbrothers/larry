@@ -1,6 +1,11 @@
 <% if notice.present? %>
   <h3><%= notice %></h3>
 <% end %>
+
+<% if session[:user_id] %>
+  <h3>Hey <%= User.find(session[:user_id]).screen_name %> - you are logged in.</h3>
+<% end %>
+
 <h1>Larry</h1>
 <p>The twitter recommendation engine</p>
 <%= link_to image_tag("sign-in-with-twitter-gray.png"), "/auth/twitter" %>
