@@ -2,8 +2,8 @@ require "rails_helper"
 
 RSpec.describe "Route", type: :routing do
   describe "Root" do
-    it "routes to home#index" do
-      expect(get: "/").to route_to( controller: "home", action: "index" )
+    it "routes to home#new" do
+      expect(get: "/").to route_to( controller: "home", action: "new" )
     end
   end
 

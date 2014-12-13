@@ -10,12 +10,12 @@ gem "spring",        group: :development
 gem "omniauth"
 gem "omniauth-twitter"
 gem "twitter"
+gem 'jquery-rails'
+gem 'turbolinks'
+gem "puma"
 
 group :development, :test do
   gem "dotenv-rails"
   gem "pry-rails"
   gem "rspec-rails"
 end
-
-gem "puma"
-gem "react-rails", "~> 1.0.0.pre", github: "reactjs/react-rails"
