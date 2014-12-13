@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe SessionsController, type: :controller do
-  let(:user) { User.create(uid: "123", screen_name: "screen_name", token: "token", secret: "secret") }
+  let(:user) { User.create(uid: "123", token: "token", secret: "secret") }
 
   describe "POST create" do
     before do
@@ -20,22 +20,21 @@ RSpec.describe SessionsController, type: :controller do
             "id" => "uid",
             "screen_name" => "screen name",
             "profile_image_url" => "profile image url",
-            "followers_count" => "11",
-            "friends_count" => "22",
-            "statuses_count" => "33"
+            "followers_count" => 11,
+            "friends_count" => 22,
+            "statuses_count" => 33
           }
         }
       })
     end
 
     let(:uid) { request.env["omniauth.auth"]["uid"] }
-    let(:screen_name) { request.env["omniauth.auth"]["info"]["nickname"] }
     let(:token) { request.env["omniauth.auth"]["credentials"]["token"] }
     let(:secret) { request.env["omniauth.auth"]["credentials"]["secret"] }
 
     before(:each) do
       request.env["omniauth.auth"] = OmniAuth.config.mock_auth[:twitter]
-      allow(User).to receive(:find_or_create).with(uid, screen_name, token, secret).and_return(user)
+      allow(User).to receive(:find_or_create).with(uid, token, secret).and_return(user)
       post :create
     end
 
@@ -45,11 +44,6 @@ RSpec.describe SessionsController, type: :controller do
 
     it "creates the user's twitter account" do
       expect(user.twitter_account.uid).to eq("uid")
-      expect(user.twitter_account.screen_name).to eq("screen name")
-      expect(user.twitter_account.profile_image_url).to eq("profile image url")
-      expect(user.twitter_account.followers_count).to eq(11)
-      expect(user.twitter_account.friends_count).to eq(22)
-      expect(user.twitter_account.statuses_count).to eq(33)
     end
 
     it "should set user's id in the session" do

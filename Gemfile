@@ -12,6 +12,7 @@ gem "omniauth-twitter"
 gem 'jquery-rails'
 gem 'turbolinks'
 gem "puma"
+gem "hashie"
 
 group :development, :test do
   gem "dotenv-rails"

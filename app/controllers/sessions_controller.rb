@@ -1,6 +1,6 @@
 class SessionsController < ApplicationController
   def create
-    @user = User.find_or_create(uid, screen_name, token, secret)
+    @user = User.find_or_create(uid, token, secret)
     @user.twitter_account = TwitterAccount.create_from_twitter_object(twitter_object_of_user)
 
     session[:user_id] = @user.id

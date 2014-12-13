@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe TwitterAccount, type: :model do
-  let(:user) { User.create(uid: "123", screen_name: "screen_name", token: "token", secret: "secret") }
+  let(:user) { User.create(uid: "123", token: "token", secret: "secret") }
   subject { TwitterAccount.new(
     uid: "123",
     screen_name: "screen_name",
@@ -65,33 +65,49 @@ RSpec.describe TwitterAccount, type: :model do
     end
   end
 
+  describe ".create_from_twitter_object" do
+    let(:twitter_obj) { Hashie::Mash.new({
+        "id" => "uid",
+        "screen_name" => "screen name",
+        "profile_image_url" => "profile image url",
+        "followers_count" => 11,
+        "friends_count" => 22,
+        "statuses_count" => 33
+      })
+    }
 
-  describe ".find_or_create" do
-    context "when a user already exists" do
-      before do
-        allow(User).to receive(:find_by).and_return("pre-existing user")
-      end
-
-      it "returns the user with the passed in UID" do
-        expect(User.find_or_create("123", "screen_name", "token", "secret")).to eq("pre-existing user")
-      end
+    it "creates a twitter account from the passed in twitter object" do
+      expect{TwitterAccount.create_from_twitter_object(twitter_obj)}.to change(TwitterAccount, :count).by(1)
     end
 
-    context "when the user does not exist" do
-      before do
-        allow(User).to receive(:find_by).and_return(nil)
-      end
-
-      it "creates a user with the passed in UID, screen_name, token, and secret" do
-        expect{User.find_or_create("123", "screen_name", "token", "secret")}.to change(User, :count).by(1)
-      end
-
-      it "returns the newly created user" do
-        allow(User).to receive(:create).and_return("new user")
-
-        expect(User.find_or_create("123", "screen_name", "token", "secret")).to eq("new user")
-      end
+    it "sets the uid to the uid from the passed in twitter object" do
+      twitter_account = TwitterAccount.create_from_twitter_object(twitter_obj)
+      expect(twitter_account.uid).to eq(twitter_obj.id)
     end
 
+    it "sets the screen_name to the uid from the passed in twitter object" do
+      twitter_account = TwitterAccount.create_from_twitter_object(twitter_obj)
+      expect(twitter_account.screen_name).to eq(twitter_obj.screen_name)
+    end
+
+    it "sets the profile_image_url to the uid from the passed in twitter object" do
+      twitter_account = TwitterAccount.create_from_twitter_object(twitter_obj)
+      expect(twitter_account.profile_image_url).to eq(twitter_obj.profile_image_url)
+    end
+
+    it "sets the followers_count to the uid from the passed in twitter object" do
+      twitter_account = TwitterAccount.create_from_twitter_object(twitter_obj)
+      expect(twitter_account.followers_count).to eq(twitter_obj.followers_count)
+    end
+
+    it "sets the friends_count to the uid from the passed in twitter object" do
+      twitter_account = TwitterAccount.create_from_twitter_object(twitter_obj)
+      expect(twitter_account.friends_count).to eq(twitter_obj.friends_count)
+    end
+
+    it "sets the statuses_count to the uid from the passed in twitter object" do
+      twitter_account = TwitterAccount.create_from_twitter_object(twitter_obj)
+      expect(twitter_account.statuses_count).to eq(twitter_obj.statuses_count)
+    end
   end
 end

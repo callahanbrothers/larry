@@ -32,7 +32,6 @@ ActiveRecord::Schema.define(version: 20141213035037) do
 
   create_table "users", force: true do |t|
     t.string   "uid"
-    t.string   "screen_name"
     t.string   "token"
     t.string   "secret"
     t.datetime "created_at"
