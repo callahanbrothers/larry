@@ -1,8 +1,8 @@
 require "rails_helper"
 
-RSpec.describe User, type: :model do
-  subject { User.new(uid: "123", screen_name: "screen_name", token: "token", secret: "secret") }
-  let(:twitter_account) { TwitterAccount.new(
+RSpec.describe TwitterAccount, type: :model do
+  let(:user) { User.create(uid: "123", screen_name: "screen_name", token: "token", secret: "secret") }
+  subject { TwitterAccount.new(
     uid: "123",
     screen_name: "screen_name",
     profile_image_url: "profile_image_url",
@@ -12,9 +12,9 @@ RSpec.describe User, type: :model do
     )
   }
 
-  it "has one twitter account" do
-    subject.twitter_account = twitter_account
-    expect(subject.twitter_account).to eq(twitter_account)
+  it "can belong to a User" do
+    subject.user = user
+    expect(subject.user).to eq(user)
   end
 
   describe "#uid" do
@@ -33,21 +33,38 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe "#token" do
+  describe "#profile_image_url" do
     it "is required" do
-      subject.token = nil
+      subject.profile_image_url = nil
       subject.valid?
-      expect(subject.errors.full_messages.first).to eq("Token can't be blank")
+      expect(subject.errors.full_messages.first).to eq("Profile image url can't be blank")
     end
   end
 
-  describe "#secret" do
+  describe "#followers_count" do
     it "is required" do
-      subject.secret = nil
+      subject.followers_count = nil
       subject.valid?
-      expect(subject.errors.full_messages.first).to eq("Secret can't be blank")
+      expect(subject.errors.full_messages.first).to eq("Followers count can't be blank")
     end
   end
+
+  describe "#friends_count" do
+    it "is required" do
+      subject.friends_count = nil
+      subject.valid?
+      expect(subject.errors.full_messages.first).to eq("Friends count can't be blank")
+    end
+  end
+
+  describe "#statuses_count" do
+    it "is required" do
+      subject.statuses_count = nil
+      subject.valid?
+      expect(subject.errors.full_messages.first).to eq("Statuses count can't be blank")
+    end
+  end
+
 
   describe ".find_or_create" do
     context "when a user already exists" do

@@ -1,4 +1,6 @@
 class User < ActiveRecord::Base
+  has_one :twitter_account
+
   validates :uid, presence: true
   validates :screen_name, presence: true
   validates :token, presence: true
