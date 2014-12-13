@@ -7,13 +7,23 @@ RSpec.describe SessionsController, type: :controller do
     before do
       OmniAuth.config.test_mode = true
       OmniAuth.config.mock_auth[:twitter] = OmniAuth::AuthHash.new({
-        "uid" => "123545",
+        "uid" => "uid",
         "info" => {
-          "name" => "mockuser"
+          "nickname" => "screen name"
         },
         "credentials" => {
-          "token" => "mock_token",
-          "secret" => "mock_secret"
+          "token" => "token",
+          "secret" => "secret"
+        },
+        "extra" => {
+          "raw_info" => {
+            "id" => "uid",
+            "screen_name" => "screen name",
+            "profile_image_url" => "profile image url",
+            "followers_count" => "11",
+            "friends_count" => "22",
+            "statuses_count" => "33"
+          }
         }
       })
     end
@@ -31,6 +41,15 @@ RSpec.describe SessionsController, type: :controller do
 
     it "provides the User as an instance variable" do
       expect(assigns(:user)).to eq(user)
+    end
+
+    it "creates the user's twitter account" do
+      expect(user.twitter_account.uid).to eq("uid")
+      expect(user.twitter_account.screen_name).to eq("screen name")
+      expect(user.twitter_account.profile_image_url).to eq("profile image url")
+      expect(user.twitter_account.followers_count).to eq(11)
+      expect(user.twitter_account.friends_count).to eq(22)
+      expect(user.twitter_account.statuses_count).to eq(33)
     end
 
     it "should set user's id in the session" do

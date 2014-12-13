@@ -1,6 +1,8 @@
 class SessionsController < ApplicationController
   def create
     @user = User.find_or_create(uid, screen_name, token, secret)
+    @user.twitter_account = TwitterAccount.create_from_twitter_object(twitter_object_of_user)
+
     session[:user_id] = @user.id
     flash.notice = "Successfully logged in"
     redirect_to :root
@@ -29,4 +31,9 @@ class SessionsController < ApplicationController
   def secret
     request.env["omniauth.auth"]["credentials"]["secret"]
   end
+
+  def twitter_object_of_user
+    request.env["omniauth.auth"]["extra"]["raw_info"]
+  end
+
 end
