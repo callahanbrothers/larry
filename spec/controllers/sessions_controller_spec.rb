@@ -1,7 +1,9 @@
 require "rails_helper"
 
 RSpec.describe SessionsController, type: :controller do
-  context "POST create" do
+  let(:user) { User.create(uid: "123", screen_name: "screen_name", token: "token", secret: "secret") }
+
+  describe "POST create" do
     before do
       OmniAuth.config.test_mode = true
       OmniAuth.config.mock_auth[:twitter] = OmniAuth::AuthHash.new({
@@ -20,7 +22,6 @@ RSpec.describe SessionsController, type: :controller do
     let(:screen_name) { request.env["omniauth.auth"]["info"]["nickname"] }
     let(:token) { request.env["omniauth.auth"]["credentials"]["token"] }
     let(:secret) { request.env["omniauth.auth"]["credentials"]["secret"] }
-    let(:user) { User.create(uid: "123", screen_name: "screen_name", token: "token", secret: "secret") }
 
     before(:each) do
       request.env["omniauth.auth"] = OmniAuth.config.mock_auth[:twitter]
@@ -36,12 +37,35 @@ RSpec.describe SessionsController, type: :controller do
       expect(session[:user_id]).to eq(user.id)
     end
 
-    it "should redirect to root" do
+    it "redirects to the root" do
       expect(response).to redirect_to root_path
     end
 
-    it "sets a success flash message" do
-      expect(flash.notice).to eq("Successfully Logged In")
+    it "sets a success message in the notice" do
+      expect(flash.notice).to eq("Successfully logged in")
+    end
+  end
+
+  describe "DELETE destroy" do
+    context "when the user is signed in" do
+      before do
+        session[:user_id] = user.id
+      end
+
+      it "clears out the session" do
+        delete :destroy
+        expect(session[:user_id]).to be_nil
+      end
+
+      it "redirects to the root" do
+        delete :destroy
+        expect(response).to redirect_to root_path
+      end
+
+      it "sets a success message in the notice" do
+        delete :destroy
+        expect(flash.notice).to eq("You are now logged out")
+      end
     end
   end
 end

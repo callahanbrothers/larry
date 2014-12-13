@@ -4,6 +4,7 @@
 
 <% if user_signed_in? %>
   <h3>Hey <%= User.find(session[:user_id]).screen_name %> - you are logged in.</h3>
+  <%= link_to("Sign Out", sign_out_path, method: :delete, class: "session") %>
 <% else %>
   <%= link_to image_tag("sign-in-with-twitter-gray.png"), "/auth/twitter" %>
 <% end %>
