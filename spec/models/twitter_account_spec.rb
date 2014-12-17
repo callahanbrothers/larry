@@ -2,19 +2,37 @@ require "rails_helper"
 
 RSpec.describe TwitterAccount, type: :model do
   let(:user) { User.create(uid: "123", token: "token", secret: "secret") }
-  subject { TwitterAccount.new(
-    uid: "123",
-    screen_name: "screen_name",
-    profile_image_url: "profile_image_url",
-    followers_count: "followers_count",
-    friends_count: "friends_count",
-    statuses_count: "statuses_count"
-    )
+  let(:twitter_params) { {
+      uid: "123",
+      screen_name: "screen_name",
+      profile_image_url: "profile_image_url",
+      followers_count: "followers_count",
+      friends_count: "friends_count",
+      statuses_count: "statuses_count"
+    }
   }
+
+  subject { TwitterAccount.new(twitter_params) }
 
   it "can belong to a User" do
     subject.user = user
     expect(subject.user).to eq(user)
+  end
+
+  it "has many friends" do
+    subject.save
+    expect{
+      subject.friends << TwitterAccount.create(twitter_params)
+      subject.friends << TwitterAccount.create(twitter_params)
+    }.to change(subject.friends, :count).by(2)
+  end
+
+  it "has many followers" do
+    subject.save
+    expect{
+      subject.followers << TwitterAccount.create(twitter_params)
+      subject.followers << TwitterAccount.create(twitter_params)
+    }.to change(subject.followers, :count).by(2)
   end
 
   describe "#uid" do
@@ -67,7 +85,7 @@ RSpec.describe TwitterAccount, type: :model do
 
   describe ".create_from_twitter_object" do
     let(:twitter_obj) { Hashie::Mash.new({
-        "id" => "uid",
+        "id" => "123",
         "screen_name" => "screen name",
         "profile_image_url" => "profile image url",
         "followers_count" => 11,
@@ -80,32 +98,32 @@ RSpec.describe TwitterAccount, type: :model do
       expect{TwitterAccount.create_from_twitter_object(twitter_obj)}.to change(TwitterAccount, :count).by(1)
     end
 
-    it "sets the uid to the uid from the passed in twitter object" do
+    it "sets the #uid to the integer form of the uid from the passed in twitter object" do
       twitter_account = TwitterAccount.create_from_twitter_object(twitter_obj)
       expect(twitter_account.uid).to eq(twitter_obj.id)
     end
 
-    it "sets the screen_name to the uid from the passed in twitter object" do
+    it "sets the #screen_name to the screen_name from the passed in twitter object" do
       twitter_account = TwitterAccount.create_from_twitter_object(twitter_obj)
       expect(twitter_account.screen_name).to eq(twitter_obj.screen_name)
     end
 
-    it "sets the profile_image_url to the uid from the passed in twitter object" do
+    it "sets the #profile_image_url to the profile_image_url from the passed in twitter object" do
       twitter_account = TwitterAccount.create_from_twitter_object(twitter_obj)
       expect(twitter_account.profile_image_url).to eq(twitter_obj.profile_image_url)
     end
 
-    it "sets the followers_count to the uid from the passed in twitter object" do
+    it "sets the #followers_count to the followers_count from the passed in twitter object" do
       twitter_account = TwitterAccount.create_from_twitter_object(twitter_obj)
       expect(twitter_account.followers_count).to eq(twitter_obj.followers_count)
     end
 
-    it "sets the friends_count to the uid from the passed in twitter object" do
+    it "sets the #friends_count to the friends_count from the passed in twitter object" do
       twitter_account = TwitterAccount.create_from_twitter_object(twitter_obj)
       expect(twitter_account.friends_count).to eq(twitter_obj.friends_count)
     end
 
-    it "sets the statuses_count to the uid from the passed in twitter object" do
+    it "sets the #statuses_count to the statuses_count from the passed in twitter object" do
       twitter_account = TwitterAccount.create_from_twitter_object(twitter_obj)
       expect(twitter_account.statuses_count).to eq(twitter_obj.statuses_count)
     end

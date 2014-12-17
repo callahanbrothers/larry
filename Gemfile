@@ -13,6 +13,7 @@ gem 'jquery-rails'
 gem 'turbolinks'
 gem "puma"
 gem "hashie"
+gem "twitter"
 
 group :development, :test do
   gem "dotenv-rails"

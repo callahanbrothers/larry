@@ -1,5 +1,17 @@
 class TwitterAccount < ActiveRecord::Base
   belongs_to :user
+  has_many :friend_relationships, class_name:  "Relationship",
+                                  foreign_key: "follower_id",
+                                  dependent:   :destroy
+
+  has_many :friends, through: :friend_relationships, source: :followed
+
+
+  has_many :follower_relationships, class_name:  "Relationship",
+                                  foreign_key: "followed_id",
+                                  dependent:   :destroy
+
+  has_many :followers, through: :follower_relationships, source: :follower
 
   validates :uid, presence: true
   validates :screen_name, presence: true

@@ -11,13 +11,18 @@ class User < ActiveRecord::Base
   validates :token, presence: true
   validates :secret, presence: true
 
-  def self.find_or_create(uid, token, secret)
-    user = User.find_by(uid: uid)
-
-    if user.present?
-      user
-    else
-      User.create(uid: uid, token: token, secret: secret)
-    end
+  def self.create_from_twitter_callback(twitter_callback)
+    user = User.create(uid: twitter_callback[:uid], secret: twitter_callback[:secret], token: twitter_callback[:token])
+    twitter_account = TwitterAccount.create(
+      user_id: user.id,
+      uid: twitter_callback[:uid],
+      screen_name: twitter_callback[:screen_name],
+      profile_image_url: twitter_callback[:profile_image_url],
+      followers_count: twitter_callback[:followers_count],
+      friends_count: twitter_callback[:friends_count],
+      statuses_count: twitter_callback[:statuses_count]
+    )
+    TwitterService.new(user).fetch_friends(twitter_account.uid)
+    user
   end
 end
