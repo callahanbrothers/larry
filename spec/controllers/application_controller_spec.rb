@@ -18,7 +18,7 @@ RSpec.describe ApplicationController, type: :controller do
 
     context "when there is a user logged in" do
       it "returns the user" do
-        user = User.create(uid: "123", screen_name: "screen_name", token: "token", secret: "secret")
+        user = User.create(uid: "123", token: "token", secret: "secret")
         session[:user_id] = user.id
         get :index
         expect(assigns(:user)).to eq(user)
@@ -43,7 +43,7 @@ RSpec.describe ApplicationController, type: :controller do
 
     context "when there is a user logged in" do
       it "returns false" do
-        user = User.create(uid: "123", screen_name: "screen_name", token: "token", secret: "secret")
+        user = User.create(uid: "123", token: "token", secret: "secret")
         session[:user_id] = user.id
         get :index
         expect(assigns(:signed_in_user)).to eq(true)

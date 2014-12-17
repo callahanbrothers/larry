@@ -1,21 +1,30 @@
 require "rails_helper"
 
 RSpec.describe User, type: :model do
-  subject { User.new(uid: "123", screen_name: "screen_name", token: "token", secret: "secret") }
+  subject { User.new(uid: "123", token: "token", secret: "secret") }
+  let(:twitter_account) { TwitterAccount.new(
+    uid: "123",
+    screen_name: "screen_name",
+    profile_image_url: "profile_image_url",
+    followers_count: "followers_count",
+    friends_count: "friends_count",
+    statuses_count: "statuses_count"
+    )
+  }
+
+  before do
+    subject.twitter_account = twitter_account
+  end
+
+  it "has one twitter account" do
+    expect(subject.twitter_account).to eq(twitter_account)
+  end
 
   describe "#uid" do
     it "is required" do
       subject.uid = nil
       subject.valid?
       expect(subject.errors.full_messages.first).to eq("Uid can't be blank")
-    end
-  end
-
-  describe "#screen_name" do
-    it "is required" do
-      subject.screen_name = nil
-      subject.valid?
-      expect(subject.errors.full_messages.first).to eq("Screen name can't be blank")
     end
   end
 
@@ -35,32 +44,81 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe ".find_or_create" do
-    context "when a user already exists" do
-      before do
-        allow(User).to receive(:find_by).and_return("pre-existing user")
-      end
+  describe "#screen_name" do
+    it "is delegated to the user's twitter_account" do
+      expect(subject.screen_name).to eq(subject.twitter_account.screen_name)
+    end
+  end
 
-      it "returns the user with the passed in UID" do
-        expect(User.find_or_create("123", "screen_name", "token", "secret")).to eq("pre-existing user")
-      end
+  describe "#profile_image_url" do
+    it "is delegated to the user's twitter_account" do
+      expect(subject.profile_image_url).to eq(subject.twitter_account.profile_image_url)
+    end
+  end
+
+  describe "#followers_count" do
+    it "is delegated to the user's twitter_account" do
+      expect(subject.followers_count).to eq(subject.twitter_account.followers_count)
+    end
+  end
+
+  describe "#friends_count" do
+    it "is delegated to the user's twitter_account" do
+      expect(subject.friends_count).to eq(subject.twitter_account.friends_count)
+    end
+  end
+
+  describe "#statuses_count" do
+    it "is delegated to the user's twitter_account" do
+      expect(subject.statuses_count).to eq(subject.twitter_account.statuses_count)
+    end
+  end
+
+  describe "#create_from_twitter_callback" do
+    let(:created_user) { User.new }
+    let(:created_twitter_account) { TwitterAccount.new }
+    let(:created_twitter_service) { TwitterService.new(created_user) }
+    let(:twitter_callback) { {
+        uid: "123456789",
+        token: "token",
+        secret: "secret",
+        screen_name: "screen_name",
+        profile_image_url: "profile_image_url",
+        followers_count: 10,
+        friends_count: 11,
+        statuses_count: 12
+      }
+    }
+
+    it "creates a new user" do
+      expect(User).to receive(:create).with(
+        uid: twitter_callback[:uid],
+        secret: twitter_callback[:secret],
+        token: twitter_callback[:token]).and_return(created_user)
+      User.create_from_twitter_callback(twitter_callback)
     end
 
-    context "when the user does not exist" do
-      before do
-        allow(User).to receive(:find_by).and_return(nil)
-      end
+    it "creates the new user's twitter account" do
+      allow(User).to receive(:create).and_return(created_user)
+      expect(TwitterAccount).to receive(:create).with(
+        user_id: created_user.id,
+        uid: twitter_callback[:uid],
+        screen_name: twitter_callback[:screen_name],
+        profile_image_url: twitter_callback[:profile_image_url],
+        followers_count: twitter_callback[:followers_count],
+        friends_count: twitter_callback[:friends_count],
+        statuses_count: twitter_callback[:statuses_count]
+      ).and_return(created_twitter_account)
 
-      it "creates a user with the passed in UID, screen_name, token, and secret" do
-        expect{User.find_or_create("123", "screen_name", "token", "secret")}.to change(User, :count).by(1)
-      end
-
-      it "returns the newly created user" do
-        allow(User).to receive(:create).and_return("new user")
-
-        expect(User.find_or_create("123", "screen_name", "token", "secret")).to eq("new user")
-      end
+      User.create_from_twitter_callback(twitter_callback)
     end
 
+    it "fetches the friends of the new user's twitter account" do
+      allow(User).to receive(:create).and_return(created_user)
+      allow(TwitterAccount).to receive(:create).and_return(created_twitter_account)
+      expect(TwitterService).to receive(:new).with(created_user).and_return(created_twitter_service)
+      expect_any_instance_of(TwitterService).to receive(:fetch_friends).with(created_twitter_account.id)
+      User.create_from_twitter_callback(twitter_callback)
+    end
   end
 end

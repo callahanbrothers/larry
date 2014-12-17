@@ -4,7 +4,9 @@ class ApplicationController < ActionController::Base
   helper_method :user_signed_in?
 
   def current_user
-    User.find(session[:user_id]) if session[:user_id].present?
+    if session[:user_id].present? && User.exists?(session[:user_id])
+      User.find(session[:user_id])
+    end
   end
 
   def user_signed_in?
