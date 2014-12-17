@@ -1,1 +1,13 @@
-<%= react_component('SignIn') %>
+<% if notice %>
+  <h3><%= notice %></h3>
+<% end %>
+
+<% if user_signed_in? %>
+  <h3>Hey <%= User.find(session[:user_id]).screen_name %> - you are logged in.</h3>
+  <%= link_to("Sign Out", sign_out_path, method: :delete, class: "session") %>
+<% else %>
+  <%= link_to image_tag("sign-in-with-twitter-gray.png"), "/auth/twitter" %>
+<% end %>
+
+<h1>Larry</h1>
+<p>The twitter recommendation engine</p>
