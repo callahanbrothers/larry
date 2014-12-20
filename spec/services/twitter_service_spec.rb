@@ -95,7 +95,7 @@ RSpec.describe TwitterService, type: :model do
       it "returns false" do
         allow(
           subject.instance_variable_get(:@twitter_client)
-        ).to receive(:get_profiles).with([123, 456]).and_raise(Twitter::Error)
+        ).to receive(:users).with([123, 456]).and_raise(Twitter::Error)
 
         expect(subject.get_profiles([123, 456])).to eq(false)
       end
@@ -135,10 +135,10 @@ RSpec.describe TwitterService, type: :model do
     end
 
     context "when there are errors from twitter" do
-      it "does something TBD" do
+      it "returns false" do
         allow(
           subject.instance_variable_get(:@twitter_client)
-        ).to receive(:get_profiles).with([123, 456]).and_raise(Twitter::Error)
+        ).to receive(:users).with([123, 456]).and_raise(Twitter::Error)
 
         expect(subject.get_profiles(["123", "456"])).to eq(false)
       end
