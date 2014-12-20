@@ -89,6 +89,10 @@ RSpec.describe User, type: :model do
         statuses_count: 12
       }
     }
+    before do
+      allow(User).to receive(:create).and_return(created_user)
+      allow(TwitterAccount).to receive(:create).and_return(created_twitter_account)
+    end
 
     it "creates a new user" do
       expect(User).to receive(:create).with(
@@ -99,7 +103,6 @@ RSpec.describe User, type: :model do
     end
 
     it "creates the new user's twitter account" do
-      allow(User).to receive(:create).and_return(created_user)
       expect(TwitterAccount).to receive(:create).with(
         user_id: created_user.id,
         uid: twitter_callback[:uid],
@@ -114,8 +117,6 @@ RSpec.describe User, type: :model do
     end
 
     it "fetches the friends of the new user's twitter account" do
-      allow(User).to receive(:create).and_return(created_user)
-      allow(TwitterAccount).to receive(:create).and_return(created_twitter_account)
       expect(TwitterService).to receive(:new).with(created_user).and_return(created_twitter_service)
       expect_any_instance_of(TwitterService).to receive(:fetch_friends).with(created_twitter_account.id)
       User.create_from_twitter_callback(twitter_callback)
